@@ -2,7 +2,7 @@
 
 Markdown Mate is a sleek, modern, and feature-rich markdown editor for the web. Write effortlessly in Markdown and see your text beautifully rendered in real-time — all in a distraction-free, dark-themed environment.
 
-![Markdown Mate Screenshot]([Main page.jpeg](https://github.com/Git-Aarya/Markdown-Mate/blob/main/Main%20page.jpeg))
+![Markdown Mate Screenshot](main_page.jpeg)
 
 ## ✨ Features
 
