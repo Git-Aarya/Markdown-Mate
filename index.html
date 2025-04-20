@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Mate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-Xi8rHCmBmhbuyyhbI88391ZKP2dmfnOl4rT9ZfRI7mLTdk1wblIUnrIq35nqwEvC" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouEsAbBO7epdkHVFJRfXaGGCRSVoyXKOZGdcDXNvZTBx" crossorigin="anonymous"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Basic styling */
+        html, body { height: 100%; margin: 0; background-color: #1a1a1a; color: #e0e0e0; overflow: hidden; }
+        /* Font families */
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-monospace { font-family: 'Source Code Pro', monospace; }
+        .font-serif { font-family: 'Source Serif 4', serif; }
+
+        /* --- Layout --- */
+        .editor-layout { height: calc(100vh - 60px); }
+        .full-height-col { height: 100%; overflow-y: auto;}
+
+        /* --- Top Bar --- */
+        #top-bar { height: 56px; flex-shrink: 0;}
+        .top-bar-button { background-color: transparent; border: none; color: #9ca3af; padding: 0.5rem; border-radius: 0.375rem; transition: all 150ms ease-in-out; cursor: pointer; }
+        .top-bar-button:hover { color: #ffffff; background-color: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .top-bar-button svg { width: 1.25rem; height: 1.25rem; stroke-width: 2; display: block;}
+        #font-selector { background-color: transparent; border: none; color: #9ca3af; padding: 0.5rem; padding-right: 2rem; border-radius: 0.375rem; transition: all 150ms ease-in-out; cursor: pointer; height: 36px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1em 1em; font-size: 0.875rem; }
+        #font-selector:hover { color: #ffffff; background-color: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); }
+        #font-selector option { background-color: #2d3748; color: #e0e0e0; }
+        #font-selector option[disabled] { color: #718096; }
+
+        /* Preview Area */
+        .markdown-preview { padding: 1.5rem; border-radius: 0.5rem; background-color: #2a2a2a; border: 1px solid #444; line-height: 1.7; }
+        /* Markdown Elements */
+        .markdown-preview h1, .markdown-preview h2, .markdown-preview h3, .markdown-preview h4, .markdown-preview h5, .markdown-preview h6 { color: #ffffff; border-bottom: 1px solid #444; padding-bottom: 0.3em; margin-top: 1.5em; margin-bottom: 1em; }
+        .markdown-preview p { margin-bottom: 1.2em; }
+        .markdown-preview a { color: #60a5fa; text-decoration: underline; }
+        .markdown-preview code:not(pre code) { background-color: #3a3a3a; color: #f0f0f0; padding: 0.2em 0.4em; border-radius: 0.3rem; font-family: 'Source Code Pro', monospace; font-size: 0.9em; }
+        .markdown-preview pre { border-radius: 0.5rem; margin-bottom: 1.5em !important; background-color: #2d2d2d; padding: 1em; overflow-x: auto; }
+        .markdown-preview pre code { font-family: 'Source Code Pro', monospace !important; font-size: 0.9em !important; background-color: transparent; padding: 0; }
+        .markdown-preview blockquote { border-left: 4px solid #555; padding-left: 1em; margin-left: 0; color: #aaa; margin-bottom: 1.2em; }
+        .markdown-preview ul, .markdown-preview ol { padding-left: 2em; margin-bottom: 1.2em; list-style-position: outside; }
+        .markdown-preview ul { list-style-type: disc; }
+        .markdown-preview ol { list-style-type: decimal; }
+        .markdown-preview li { margin-bottom: 0.6em; }
+        .markdown-preview table { border-collapse: collapse; margin-bottom: 1.5em; width: auto; border: 1px solid #555;}
+        .markdown-preview th, .markdown-preview td { border: 1px solid #555; padding: 0.5em 0.8em; }
+        .markdown-preview th { background-color: #3a3a3a; font-weight: bold; }
+        .markdown-preview hr { border: 0; border-top: 1px solid #444; margin: 2em 0; }
+        /* Mermaid diagram styling */
+        .markdown-preview pre.mermaid { background-color: #2a2a2a; border-radius: 0.5rem; padding: 1em; margin-bottom: 1.5em; display: flex; justify-content: center; border: none; line-height: initial; color: initial; overflow: auto;}
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background-color: #555; border-radius: 4px; border: 2px solid #2a2a2a; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #777; }
+        /* Textarea */
+        #markdown-input { background-color: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 0.5rem; padding: 1.5rem; resize: none; outline: none; width: 100%; box-shadow: none; line-height: 1.6; font-size: 1rem; }
+        #markdown-input:focus { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3); }
+        /* Message Box */
+        #message-box { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #38a169; color: white; padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 0.5s ease-in-out; z-index: 1000; font-size: 0.9rem; pointer-events: none; }
+        #message-box.show { opacity: 1; }
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background-color: #2a2a2a; margin: auto; padding: 30px; border: 1px solid #555; width: 80%; max-width: 700px; border-radius: 8px; position: relative; max-height: 80vh; overflow-y: auto; color: #e0e0e0; }
+        .modal-close { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-close:hover, .modal-close:focus { color: #fff; text-decoration: none; }
+        .modal h2 { color: #fff; margin-top: 0; border-bottom: 1px solid #555; padding-bottom: 0.5em; }
+        .modal code { background-color: #3a3a3a; color: #f0f0f0; padding: 0.1em 0.3em; border-radius: 0.2rem; font-family: 'Source Code Pro', monospace; font-size: 0.9em; }
+        .modal pre { background-color: #1e1e1e; border: 1px solid #444; padding: 0.8em; border-radius: 0.3rem; overflow-x: auto; font-size: 0.9em; }
+        /* KaTeX */
+        .katex-display { overflow-x: auto; overflow-y: hidden; }
+        .katex { font-size: 1.1em; }
+    </style>
+</head>
+<body class="flex flex-col h-full font-inter">
+
+    <div id="top-bar" class="bg-gray-950 text-white px-4 py-2 flex items-center justify-between shadow-md">
+         <div class="flex items-center gap-1">
+            <button class="top-bar-button" data-action="bold" title="Bold (Ctrl+B)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 12a4 4 0 0 0 0-8H6v8"/><path d="M15 20a4 4 0 0 0 0-8H6v8Z"/></svg></button>
+            <button class="top-bar-button" data-action="italic" title="Italic (Ctrl+I)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg></button>
+            <button class="top-bar-button" data-action="strikethrough" title="Strikethrough"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H9l-4 16H4"/><path d="M4 12h16"/></svg></button>
+            <button class="top-bar-button" data-action="link" title="Link (Ctrl+K)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+            <button class="top-bar-button" data-action="code" title="Inline Code"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
+            <button class="top-bar-button" data-action="blockquote" title="Blockquote"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6H3"/><path d="M21 12H3"/><path d="M21 18H3"/><path d="M3 12v6"/><path d="M3 6v6"/></svg></button>
+            <button class="top-bar-button" data-action="uml-skeleton" title="Insert UML Skeleton"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 6l4 14"/><path d="M12 6v14"/><path d="M8 8v10"/><path d="M4 4v10"/><path d="M4 14h16"/><path d="M4 8h4m4 0h4"/></svg></button>
+            <select id="font-selector" aria-label="Select Font" title="Change Editor Font"><option value="" disabled selected>Font</option><option value="inter">Inter</option><option value="monospace">Monospace</option><option value="serif">Serif</option></select>
+        </div>
+        <div class="flex-grow text-center"><h1 class="text-xl font-semibold text-gray-200">Markdown Mate</h1></div>
+        <div class="flex items-center gap-1">
+             <button id="help-button" class="top-bar-button" title="Help"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg></button>
+            <button id="copy-html-button" class="top-bar-button" title="Copy HTML"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+            <button id="export-md-button" class="top-bar-button" title="Export Markdown"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></button>
+        </div>
+    </div>
+
+    <main class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 p-4 overflow-hidden editor-layout">
+        <div class="full-height-col">
+            <textarea id="markdown-input" class="w-full h-full p-4" placeholder="Start writing your Markdown here..." aria-label="Markdown Input"></textarea>
+        </div>
+        <div id="preview-area" class="full-height-col markdown-preview"></div>
+    </main>
+
+    <div id="message-box">Copied!</div>
+
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close-button">&times;</span>
+            <h2>Markdown Mate Help</h2>
+            <p>Write Markdown in the left pane and see the preview on the right.</p>
+            <h3>Top Bar Controls</h3>
+            <p>Use the icons and dropdown in the top bar to format text and access features:</p>
+            <ul>
+                <li><b>B Icon</b>: Bold (**text**) - Placeholder selected.</li>
+                <li><i>I Icon</i>: Italic (*text*) - Placeholder selected.</li>
+                <li><s>S Icon</s>: Strikethrough (~~text~~) - Placeholder selected.</li>
+                <li>🔗 Icon: Link ([title](url)) - Placeholder selected.</li>
+                <li>&lt;/&gt; Icon: Inline code (`code`) - Placeholder selected.</li>
+                <li>&gt; Icon: Blockquote (&gt; quote) - Placeholder selected.</li>
+                <li>📊 Icon (UML): Insert UML diagram skeleton - Skeleton selected.</li>
+                 <li>Font Dropdown: Changes editor & preview font.</li>
+                 <li>❓ Icon: Show this help modal.</li>
+                 <li>📋 Icon: Copy rendered HTML to clipboard.</li>
+                 <li>💾 Icon: Export Markdown source as .md file.</li>
+                 </ul>
+            <h3>Basic Syntax</h3>
+            <ul>
+                <li><code># H1</code> to <code>###### H6</code></li>
+                <li><code>**Bold**</code> or <code>__Bold__</code></li>
+                <li><code>*Italic*</code> or <code>_Italic_</code></li>
+                <li><code>~~Strikethrough~~</code></li>
+                <li><code>`Inline code`</code></li>
+                <li><code>&gt; Blockquote</code></li>
+                <li><code>- Item</code> or <code>* Item</code> (Unordered List)</li>
+                <li><code>1. Item</code> (Ordered List)</li>
+                <li><code>[Link text](https://example.com)</code></li>
+                <li><code>![Alt text](image.jpg)</code></li>
+                <li><code>---</code> or <code>***</code> for horizontal rules</li>
+                <li><code>```javascript\nconsole.log('Hello');\n```</code> (Code Blocks)</li>
+            </ul>
+             <h3>Diagrams (Mermaid JS)</h3>
+             <p>Create diagrams by writing Mermaid syntax inside a <code>mermaid</code> code block. Click the 📊 icon (UML) to insert a starter skeleton.</p>
+             <pre><code>```mermaid
+classDiagram
+    class Animal {
+        +String name
+        +speak()
+    }
+    class Dog {
+        +fetch()
+    }
+    Animal &lt;|-- Dog
+```</code></pre>
+            <p>Supported diagrams include flowcharts, sequence diagrams, class diagrams, state diagrams, Gantt charts, and more. See the <a href="https://mermaid.js.org/intro/" target="_blank" rel="noopener noreferrer" style="color: #60a5fa;">Mermaid documentation</a> for details.</p>
+
+             <h3>Mathematical Expressions (KaTeX)</h3>
+            <p>Use KaTeX to render math:</p>
+            <ul>
+                <li>Inline: <code>$E=mc^2$</code></li>
+                <li>Block: <code>$$\int_a^b f(x) dx$$</code></li>
+            </ul>
+            <p>See the <a href="https://katex.org/docs/supported.html" target="_blank" rel="noopener noreferrer" style="color: #60a5fa;">KaTeX documentation</a> for supported functions.</p>
+
+            <h3>Tables (GFM)</h3>
+            <p>Use standard GitHub Flavored Markdown table syntax:</p>
+            <pre><code>| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| Cell 1   | Cell 2   | Cell 3   |
+| Cell 4   | Cell 5   | Cell 6   |</code></pre>
+
+            <h3>Other Features</h3>
+            <ul>
+                <li><b>Auto-Save:</b> Your text is saved locally.</li>
+                <li><b>Syntax Highlighting:</b> Code blocks are highlighted (except Mermaid).</li>
+                <li><b>SmartyPants:</b> Converts "straight quotes" to “curly quotes”, --- to — (em-dash), -- to – (en-dash), and ... to … (ellipsis).</li>
+                 <li><b>List Continuation:</b> Pressing Enter on a list item automatically creates the next item. Pressing Enter on an empty list item ends the list.</li>
+                 <li><b>Autopairing:</b> Typing <code>(</code>, <code>[</code>, <code>{</code>, <code>"</code>, <code>'</code>, or <code>`</code> automatically inserts the closing pair.</li>
+                 <li><b>Synchronized Scrolling:</b> Scrolling the editor or preview pane scrolls the other.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        
+        const markdownInput = document.getElementById('markdown-input');
+        const previewArea = document.getElementById('preview-area');
+        const messageBox = document.getElementById('message-box');
+        const helpModal = document.getElementById('help-modal');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const topBar = document.getElementById('top-bar');
+        const fontSelector = document.getElementById('font-selector');
+        const body = document.body;
+
+        
+        const LOCAL_STORAGE_KEY = 'markdownMateContent';
+        const FONT_STORAGE_KEY = 'markdownMateFont';
+        const UML_SKELETON_CODE = `classDiagram
+    class Animal {
+        +String name
+        +speak()
+    }
+    class Dog {
+        +fetch()
+    }
+    Animal <|-- Dog`;
+        const UML_SKELETON_FULL = "```mermaid\n" + UML_SKELETON_CODE + "\n```";
+        const PAIR_MAP = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
+        const DEFAULT_MARKDOWN_CONTENT = `# Welcome to Markdown Mate!
+
+This is a sample document showing some features. "Smart" quotes are enabled!
+
+## Text Formatting
+* This is **bold text** using asterisks.
+* This is __bold text__ using underscores.
+* This is *italic text* using asterisks.
+* This is _italic text_ using underscores.
+* This is ***bold and italic***.
+* This is ~~strikethrough~~.
+* Inline \`code\` is wrapped in backticks.
+* SmartyPants converts quotes: "Hello World". It also handles 'single quotes'.
+* It converts dashes: An em-dash---like this. An en-dash--like that.
+* And ellipses... pretty neat!
+
+## Lists
+### Unordered List
+- Item 1
+- Item 2
+  - Sub-item 2.1
+  - Sub-item 2.2
+- Item 3
+
+### Ordered List
+1. First item
+2. Second item
+3. Third item
+   1. Sub-item 3.1
+   2. Sub-item 3.2
+
+## Links and Images
+[Visit Mermaid JS Docs](https://mermaid.js.org/intro/)
+
+![Placeholder Image](logo.png)
+
+## Blockquotes
+> This is a blockquote.
+> It can span multiple lines.
+
+## Tables (GFM)
+| Feature         | Status | Notes         |
+|-----------------|--------|---------------|
+| SmartyPants     | Added  | Typographic quotes, dashes, etc. |
+| GFM Tables      | Active | Standard table syntax |
+| Mermaid         | Active | For diagrams  |
+| KaTeX           | Active | For Math      |
+
+## Code Blocks
+\`\`\`javascript
+function greet(name) {
+  // Template literals use backticks
+  console.log(\`Hello, \${name}!\`);
+}
+
+greet('Markdown User');
+\`\`\`
+
+## Math (KaTeX)
+Inline math: $E = mc^2$
+Block math:
+$$
+\\frac{-b \\pm \sqrt{b^2 - 4ac}}{2a}
+$$
+
+## Diagrams (Mermaid JS)
+Click the UML button or type manually:
+\`\`\`mermaid
+graph TD
+    A[Start] --> B{Is it?};
+    B -- Yes --> C[OK];
+    C --> D[End];
+    B -- No --> E[Fix it!];
+    E --> B;
+\`\`\`
+
+---
+
+Happy writing!
+`;
+
+        // --- Scroll Sync State ---
+        let isSyncingScroll = false;
+        let scrollTimeout;
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFontPreference(); loadContent(); configureMarked(); initializeMermaid(); updatePreview(); setupScrollSync();
+        });
+
+        // --- Configuration ---
+        function configureMarked() { 
+            if (typeof marked === 'undefined') { console.error("Marked.js is not loaded."); return; }
+            marked.setOptions({ gfm: true, breaks: true, pedantic: false, smartLists: true, smartypants: true,
+                highlight: function(code, lang) { if (lang === 'mermaid') { return code; } if (typeof Prism === 'undefined' || typeof Prism.languages === 'undefined') { const escapedCode = code.replace(/</g, "&lt;").replace(/>/g, "&gt;"); return escapedCode; } const grammar = Prism.languages[lang]; if (grammar) { try { return Prism.highlight(code, grammar, lang); } catch (e) { console.warn(`Prism highlight failed: ${lang}`, e); } } const escapedCode = code.replace(/</g, "&lt;").replace(/>/g, "&gt;"); return escapedCode; }
+            });
+        }
+        function initializeMermaid() { 
+             if (typeof mermaid === 'undefined') { console.error("Mermaid.js not loaded."); return; }
+             try { mermaid.initialize({ startOnLoad: false, theme: 'dark' }); } catch (e) { console.error("Mermaid initialization failed:", e); }
+        }
+
+        // --- Default Content ---
+        function loadContent() { 
+            const savedContent = localStorage.getItem(LOCAL_STORAGE_KEY); markdownInput.value = savedContent || DEFAULT_MARKDOWN_CONTENT;
+        }
+        function saveContent() { 
+             localStorage.setItem(LOCAL_STORAGE_KEY, markdownInput.value);
+        }
+
+        // --- Font ---
+        function loadFontPreference() { 
+            const savedFont = localStorage.getItem(FONT_STORAGE_KEY); if (savedFont) { fontSelector.value = savedFont; } else { fontSelector.selectedIndex = 0; } applyFont(fontSelector.value || 'inter');
+        }
+        function saveFontPreference(font) { 
+            if (font) { localStorage.setItem(FONT_STORAGE_KEY, font); } else { localStorage.removeItem(FONT_STORAGE_KEY); }
+        }
+        function applyFont(font) { 
+            const fontClasses = { inter: 'font-inter', monospace: 'font-monospace', serif: 'font-serif' }; const elements = [markdownInput, previewArea]; elements.forEach(el => el.classList.remove('font-inter', 'font-monospace', 'font-serif')); const fontClass = fontClasses[font] || 'font-inter'; elements.forEach(el => el.classList.add(fontClass));
+        }
+
+        // --- Rendering ---
+        async function updatePreview() {
+             const markdownText = markdownInput.value;
+             if (typeof marked === 'undefined') { console.error("Marked.js not loaded."); return; }
+             let htmlContent = '';
+             try { htmlContent = marked.parse(markdownText); }
+             catch (e) { console.error("Markdown parsing error:", e); return; }
+             previewArea.innerHTML = htmlContent;
+
+            // Highlighting
+            if (typeof Prism !== 'undefined') {
+                try { previewArea.querySelectorAll('pre code:not(.language-mermaid)').forEach((block) => { Prism.highlightElement(block); }); }
+                catch (e) { console.error("Prism failed:", e); }
+            } else { }
+
+            // Mermaid
+            if (typeof mermaid !== 'undefined') {
+                try {
+                    const mermaidCodeBlocks = previewArea.querySelectorAll('code.language-mermaid');
+                    const elementsToRender = [];
+                    mermaidCodeBlocks.forEach((codeBlock) => {
+                        const preElement = codeBlock.parentElement;
+                        if (preElement && !preElement.classList.contains('mermaid')) {
+                            preElement.classList.add('mermaid');
+                            preElement.textContent = codeBlock.textContent;
+                            elementsToRender.push(preElement);
+                        } else if (preElement && preElement.classList.contains('mermaid')) {
+                             elementsToRender.push(preElement);
+                        }
+                    });
+                    if (elementsToRender.length > 0) { await mermaid.run({ nodes: elementsToRender }); }
+                } catch (e) {
+                    console.error("Mermaid rendering failed:", e);
+                     previewArea.querySelectorAll('pre.mermaid').forEach(el => {
+                         if (!el.querySelector('svg')) { el.innerHTML = `<div style="color: red; background: #333; padding: 10px; border-radius: 4px;">Mermaid Error: ${e.message || 'Unknown error'}</div>`; }
+                     });
+                }
+            }
+
+             // ** KateX**
+            if (typeof renderMathInElement === 'function') {
+                try {
+                    renderMathInElement(previewArea, {
+                        delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}, {left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true} ],
+                        throwOnError: false 
+                    });
+                } catch (e) { console.error("KaTeX failed:", e); }
+            } else { console.warn("KaTeX auto-render function not found."); }
+        }
+
+        // --- Toolbar ---
+        function applyMarkdownSyntax(syntax) { 
+            const start = markdownInput.selectionStart; const end = markdownInput.selectionEnd; const selectedText = markdownInput.value.substring(start, end); let replacement = ''; let selectPlaceholder = false; let placeholderText = '';
+            switch (syntax.type) {
+                case 'wrap': const prefixWrap = syntax.prefix; const suffixWrap = syntax.suffix || prefixWrap; placeholderText = syntax.placeholder || ''; if (selectedText) { replacement = prefixWrap + selectedText + suffixWrap; } else { replacement = prefixWrap + placeholderText + suffixWrap; if (placeholderText) { selectPlaceholder = true; } } break;
+                case 'prefix': const linePrefix = syntax.prefix; placeholderText = syntax.placeholder || ''; if (selectedText) { const lines = selectedText.split('\n'); replacement = lines.map(line => line.trim() === '' ? line : linePrefix + line).join('\n'); } else { const currentLineStart = markdownInput.value.lastIndexOf('\n', start - 1) + 1; replacement = linePrefix + placeholderText; const before = markdownInput.value.substring(0, currentLineStart); const after = markdownInput.value.substring(currentLineStart); markdownInput.value = before + replacement + after; const placeholderStart = currentLineStart + linePrefix.length; const placeholderEnd = placeholderStart + placeholderText.length; markdownInput.focus(); markdownInput.setSelectionRange(placeholderStart, placeholderEnd); updatePreview(); saveContent(); return; } break;
+                case 'link': const linkText = selectedText || 'link text'; placeholderText = 'url'; replacement = `[${linkText}](${placeholderText})`; selectPlaceholder = !selectedText; break;
+            }
+            if (document.execCommand('insertText', false, replacement)) { markdownInput.focus(); if (selectPlaceholder) { const placeholderStart = start + syntax.prefix.length + (syntax.type === 'link' ? `[${selectedText || 'link text'}]`.length + 1 : 0); const placeholderEnd = placeholderStart + placeholderText.length; markdownInput.setSelectionRange(placeholderStart, placeholderEnd); } else if (selectedText && syntax.type !== 'prefix') { markdownInput.selectionStart = start + syntax.prefix.length; markdownInput.selectionEnd = start + replacement.length - (syntax.suffix || syntax.prefix).length; } } else { console.warn("execCommand('insertText') failed."); } updatePreview(); saveContent();
+        }
+
+        // --- Insert UML Skeleton ---
+        function insertUmlSkeleton() { 
+            const start = markdownInput.selectionStart; const end = markdownInput.selectionEnd; const textBefore = markdownInput.value.substring(0, start); const textAfter = markdownInput.value.substring(end); const needsNewlineBefore = textBefore.length > 0 && !textBefore.endsWith('\n\n') && textBefore.slice(-1) !== '\n'; const needsNewlineAfter = textAfter.length > 0 && !textAfter.startsWith('\n\n') && textAfter.slice(0, 1) !== '\n'; const skeletonToInsert = (needsNewlineBefore ? '\n' : '') + UML_SKELETON_FULL + (needsNewlineAfter ? '\n' : ''); const openingFenceLength = "```mermaid\n".length; const closingFenceLength = "\n```".length; const prefixLength = (needsNewlineBefore ? 1 : 0) + openingFenceLength; const suffixLength = closingFenceLength + (needsNewlineAfter ? 1 : 0);
+            if (document.execCommand('insertText', false, skeletonToInsert)) { markdownInput.focus(); const selectionStart = start + prefixLength; const selectionEnd = start + skeletonToInsert.length - suffixLength; markdownInput.setSelectionRange(selectionStart, selectionEnd); } else { console.warn("execCommand('insertText') failed for UML skeleton."); } updatePreview(); saveContent();
+        }
+
+        // --- Synchronized Scrolling ---
+        function setupScrollSync() { 
+            const syncScroll = (source, target) => { if (isSyncingScroll) { isSyncingScroll = false; return; } const sourceScrollHeight = source.scrollHeight - source.clientHeight; const targetScrollHeight = target.scrollHeight - target.clientHeight; if (sourceScrollHeight <= 0 || targetScrollHeight <= 0) return; const scrollPercent = source.scrollTop / sourceScrollHeight; isSyncingScroll = true; target.scrollTop = scrollPercent * targetScrollHeight; }; const throttle = (func, limit) => { let inThrottle; return function() { const args = arguments; const context = this; if (!inThrottle) { func.apply(context, args); inThrottle = true; setTimeout(() => inThrottle = false, limit); } } }; const throttledSyncFromInput = throttle(() => syncScroll(markdownInput, previewArea), 50); const throttledSyncFromPreview = throttle(() => syncScroll(previewArea, markdownInput), 50); markdownInput.addEventListener('scroll', throttledSyncFromInput); previewArea.addEventListener('scroll', throttledSyncFromPreview); markdownInput.addEventListener('mouseenter', () => syncScroll(previewArea, markdownInput)); previewArea.addEventListener('mouseenter', () => syncScroll(markdownInput, previewArea));
+        }
+
+        // --- Event Listeners ---
+        markdownInput.addEventListener('input', () => { requestAnimationFrame(() => { updatePreview(); saveContent(); }); });
+        topBar.addEventListener('click', (e) => { 
+            const button = e.target.closest('button'); if (button) { if (button.id === 'help-button') { helpModal.style.display = 'flex'; } else if (button.id === 'copy-html-button') { navigator.clipboard.writeText(previewArea.innerHTML).then(() => showNotification('HTML copied!')).catch(err => showNotification('Copy failed!', true)); } else if (button.id === 'export-md-button') { const blob = new Blob([markdownInput.value], { type: 'text/markdown;charset=utf-8' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'markdown-mate.md'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showNotification('Markdown exported!'); } else if (button.dataset.action) { const action = button.dataset.action; switch (action) { case 'bold': applyMarkdownSyntax({ type: 'wrap', prefix: '**', placeholder: 'bold text', action: action }); break; case 'italic': applyMarkdownSyntax({ type: 'wrap', prefix: '*', placeholder: 'italic text', action: action }); break; case 'strikethrough': applyMarkdownSyntax({ type: 'wrap', prefix: '~~', placeholder: 'strikethrough', action: action }); break; case 'link': applyMarkdownSyntax({ type: 'link', prefix: '[', suffix: '](url)', placeholder: 'link text', action: action }); break; case 'code': applyMarkdownSyntax({ type: 'wrap', prefix: '`', suffix: '`', placeholder: 'code', action: action }); break; case 'blockquote': applyMarkdownSyntax({ type: 'prefix', prefix: '> ', placeholder: 'quote', action: action }); break; case 'uml-skeleton': insertUmlSkeleton(); break; } } }
+        });
+        markdownInput.addEventListener('beforeinput', (e) => { 
+            const data = e.data; if (data && data.length === 1 && PAIR_MAP.hasOwnProperty(data)) { e.preventDefault(); const start = markdownInput.selectionStart; const end = markdownInput.selectionEnd; const closing = PAIR_MAP[data]; const selectedText = markdownInput.value.substring(start, end); const textBefore = markdownInput.value.substring(0, start); const textAfter = markdownInput.value.substring(end); let replacement = ''; let finalCursorPos = start + 1; if (selectedText) { replacement = data + selectedText + closing; finalCursorPos = start + replacement.length; } else { replacement = data + closing; } markdownInput.value = textBefore + replacement + textAfter; markdownInput.focus(); markdownInput.selectionStart = markdownInput.selectionEnd = finalCursorPos; requestAnimationFrame(() => { updatePreview(); saveContent(); }); }
+        });
+        markdownInput.addEventListener('keydown', (e) => { 
+            const key = e.key; const start = markdownInput.selectionStart; const end = markdownInput.selectionEnd; if (key === 'Enter') { const cursor = markdownInput.selectionStart; const textBefore = markdownInput.value.substring(0, cursor); const lineStart = textBefore.lastIndexOf('\n') + 1; const lineEnd = markdownInput.value.indexOf('\n', cursor); const currentLineFull = markdownInput.value.substring(lineStart, lineEnd === -1 ? markdownInput.value.length : lineEnd); const olRegex = /^(\s*)(\d+)\.(\s+)/; const ulRegex = /^(\s*)([-*])(\s+)/; const olMatch = currentLineFull.match(olRegex); const ulMatch = currentLineFull.match(ulRegex); let listMatch = olMatch || ulMatch; let listType = olMatch ? 'ol' : (ulMatch ? 'ul' : null); if (listMatch && cursor >= lineStart + listMatch[0].length) { const prefixWhitespace = listMatch[1]; const marker = listMatch[2]; const separator = listMatch[3]; const fullPrefix = listMatch[0]; if (currentLineFull.trim() === fullPrefix.trim()) { e.preventDefault(); const beforeText = markdownInput.value.substring(0, lineStart); const afterText = markdownInput.value.substring(lineEnd === -1 ? markdownInput.value.length : lineEnd); markdownInput.value = beforeText + afterText; markdownInput.selectionStart = markdownInput.selectionEnd = lineStart; } else { e.preventDefault(); let nextPrefix = ''; if (listType === 'ol') { const nextNum = parseInt(marker, 10) + 1; nextPrefix = `\n${prefixWhitespace}${nextNum}.${separator}`; } else { nextPrefix = `\n${fullPrefix}`; } const textBeforeCursorOnLine = markdownInput.value.substring(0, cursor); const textAfterCursorOnLine = markdownInput.value.substring(cursor, lineEnd === -1 ? markdownInput.value.length : lineEnd); const textAfterLine = markdownInput.value.substring(lineEnd === -1 ? markdownInput.value.length : lineEnd); markdownInput.value = textBeforeCursorOnLine + nextPrefix + textAfterCursorOnLine + textAfterLine; const newCursorPos = cursor + nextPrefix.length; markdownInput.selectionStart = markdownInput.selectionEnd = newCursorPos; } updatePreview(); saveContent(); return; } } if (e.ctrlKey || e.metaKey) { let handled = false; switch (key.toLowerCase()) { case 'b': applyMarkdownSyntax({ type: 'wrap', prefix: '**', placeholder: 'bold text', action: 'bold' }); handled = true; break; case 'i': applyMarkdownSyntax({ type: 'wrap', prefix: '*', placeholder: 'italic text', action: 'italic' }); handled = true; break; case 'k': applyMarkdownSyntax({ type: 'link', prefix: '[', suffix: '](url)', placeholder: 'link text', action: 'link' }); handled = true; break; } if (handled) { e.preventDefault(); } }
+        });
+
+        // Font
+        fontSelector.addEventListener('change', (e) => { applyFont(e.target.value); saveFontPreference(e.target.value); });
+        modalCloseButton.addEventListener('click', () => { helpModal.style.display = 'none'; });
+        window.addEventListener('click', (event) => { if (event.target === helpModal) { helpModal.style.display = 'none'; } });
+        // --- Utility ---
+        function showNotification(message, isError = false) { 
+            messageBox.textContent = message; messageBox.style.backgroundColor = isError ? '#e53e3e' : '#38a169'; messageBox.classList.add('show'); setTimeout(() => { messageBox.classList.remove('show'); }, 3000);
+        }
+    </script>
+</body>
+</html>
+
+
