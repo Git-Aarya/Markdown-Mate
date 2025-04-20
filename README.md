@@ -2,8 +2,6 @@
 
 Markdown Mate is a sleek, modern, and feature-rich markdown editor for the web. Write effortlessly in Markdown and see your text beautifully rendered in real-time — all in a distraction-free, dark-themed environment.
 
-![Markdown Mate Screenshot](main_page.jpeg)
-
 ## ✨ Features
 
 * ✍️ **Live Preview:** Instantly see your Markdown rendered as HTML as you type.
@@ -45,3 +43,4 @@ Markdown Mate is a sleek, modern, and feature-rich markdown editor for the web. 
 * [Prism.js](https://prismjs.com/) (Syntax Highlighting)
 * [Mermaid.js](https://mermaid.js.org/) (Diagram Rendering)
 
+![Markdown Mate Screenshot](main_page.jpeg)
