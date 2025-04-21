@@ -43,4 +43,5 @@ Markdown Mate is a sleek, modern, and feature-rich markdown editor for the web. 
 * [Prism.js](https://prismjs.com/) (Syntax Highlighting)
 * [Mermaid.js](https://mermaid.js.org/) (Diagram Rendering)
 
+## Use It Here [MarkdownMate](https://git-aarya.github.io/Markdown-Mate/)
 ![Markdown Mate Screenshot](main_page.jpeg)
