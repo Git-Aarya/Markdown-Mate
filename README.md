@@ -4,7 +4,6 @@
 
 Markdown Mate offers a distraction-free, dark-themed environment, allowing you to focus on your content while instantly seeing it rendered. It supports GitHub Flavored Markdown (GFM), mathematical expressions with KaTeX, and diagram creation with Mermaid.js.
 
-[![Markdown Mate Screenshot](main_page.jpeg)](https://git-aarya.github.io/Markdown-Mate/)
 *View the live demo [here](https://git-aarya.github.io/Markdown-Mate/)*
 
 ## Key Features ✨
