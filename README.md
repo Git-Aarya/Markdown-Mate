@@ -68,5 +68,10 @@ Markdown Mate processes your Markdown input in real-time:
 
 While this is a personal project, suggestions for improvements or bug fixes are welcome! Please feel free to open an issue on the GitHub repository.
 
+## License
+
+This project is licensed under the **MIT License**. You can find the full license text in the `LICENSE` file in the repository.
+
+
 ## Use It Here [MarkdownMate](https://git-aarya.github.io/Markdown-Mate/)
 ![Markdown Mate Screenshot](assets/main_page.jpeg)
